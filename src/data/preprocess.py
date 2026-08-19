@@ -124,8 +124,8 @@ def create_splits(config):
         random_state=config['project']['seed']
     )
     
-    train_df = train_df.drop('stratify_key', axis=1).reset_index(drop=True)
-    val_df = val_df.drop('stratify_key', axis=1).reset_index(drop=True)
+    train_df = train_df.drop('abnormal', axis=1).reset_index(drop=True)
+    val_df = val_df.drop('abnormal', axis=1).reset_index(drop=True)
     
     # Save splits
     train_df.to_csv(processed_root / "train_split.csv", index=False)
