@@ -5,17 +5,21 @@ project:
   seed: 42
 
 paths:
-  data_root: "data/raw"
-  processed_root: "data/processed"
+  # if necessary, replace with true data path
+  data_root: "/kaggle/input/rsna-knee-abnormality-detection"
+  processed_root: "/kaggle/working/processed"
+  
   train_images: "train_images"
   test_images: "test_images"
+  
   train_csv: "train.csv"
   test_csv: "test.csv"
   sample_submission: "sample_submission.csv"
-  output_dir: "outputs"
-  model_dir: "outputs/models"
-  log_dir: "outputs/logs"
-  submission_dir: "outputs/submissions"
+  
+  output_dir: "/kaggle/working/outputs"
+  model_dir: "outputs/working/outputs/models"
+  log_dir: "/kaggle/working/outputs/logs"
+  submission_dir: "/kaggle/working/outputs/submissions"
 
 data:
   image_size: [224, 224]
