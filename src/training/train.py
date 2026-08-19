@@ -238,7 +238,14 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     model = create_model(config).to(device)
     
     # Calculate pos_weight
-    train_targets = train_df[target_cols].values
+    # train_targets = train_df[target_cols].values
+    train_targets = (
+        train_df[target_cols]
+        .apply(pd.to_numeric, errors='coerce')
+        .fillna(0)
+        .values
+        .astype(np.float32)
+    )
     pos_weight = calculate_pos_weight(train_targets).to(device)
     
     # Loss, optimizer, scheduler
