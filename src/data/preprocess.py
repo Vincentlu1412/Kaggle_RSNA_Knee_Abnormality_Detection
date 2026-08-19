@@ -105,7 +105,7 @@ def create_splits(config):
     df = pd.read_csv(train_csv)
     
     # Target columns (exclude id columns)
-    target_cols = [c for c in df.columns if c not in ['id', 'series_id', 'study_id']]
+    target_cols = [c for c in df.columns if c not in ['StudyInstanceUID', 'Report']]
     print(f"Target columns: {target_cols}")
     
     # Create stratification key (combination of all targets)
