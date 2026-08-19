@@ -146,10 +146,11 @@ def create_kfold_splits(config, n_splits=5):
     train_csv = data_root / config['paths']['train_csv']
     df = pd.read_csv(train_csv)
     
-    target_cols = [c for c in df.columns if c not in ['id', 'series_id', 'study_id']]
-    # df['stratify_key'] = df[target_cols].astype(str).agg('_'.join, axis=1)
+    target_cols = [c for c in df.columns if c not in ['StudyInstanceUID', 'Report']
+    
     # fill missing labels
-    df[target_cols] = df[target_cols].fillna(0)
+    for c in target_cols:
+        df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0)
 
     # abnormal / normal stratification
     df['abnormal'] = (df[target_cols].sum(axis=1) > 0).astype(int)
