@@ -6,7 +6,7 @@ project:
 
 paths:
   # if necessary, replace with true data path
-  data_root: "/kaggle/input/rsna-knee-abnormality-detection"
+  data_root: "/kaggle/input/competitions/rsna-knee-abnormality-detection"
   processed_root: "/kaggle/working/processed"
   
   train_images: "train_images"
