@@ -146,7 +146,7 @@ def create_kfold_splits(config, n_splits=5):
     train_csv = data_root / config['paths']['train_csv']
     df = pd.read_csv(train_csv)
     
-    target_cols = [c for c in df.columns if c not in ['StudyInstanceUID', 'Report']
+    target_cols = [c for c in df.columns if c not in ['StudyInstanceUID', 'Report']]
     
     # fill missing labels
     for c in target_cols:
@@ -157,9 +157,9 @@ def create_kfold_splits(config, n_splits=5):
     
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=config['project']['seed'])
     
-    for fold, (train_idx, val_idx) in enumerate(skf.split(df, df['stratify_key'])):
-        fold_train = df.iloc[train_idx].drop('stratify_key', axis=1).reset_index(drop=True)
-        fold_val = df.iloc[val_idx].drop('stratify_key', axis=1).reset_index(drop=True)
+    for fold, (train_idx, val_idx) in enumerate(skf.split(df, df['abnormal'])):
+        fold_train = df.iloc[train_idx].drop('abnormal', axis=1).reset_index(drop=True)
+        fold_val = df.iloc[val_idx].drop('abnormal', axis=1).reset_index(drop=True)
         
         fold_train.to_csv(processed_root / f"train_fold{fold}.csv", index=False)
         fold_val.to_csv(processed_root / f"val_fold{fold}.csv", index=False)
