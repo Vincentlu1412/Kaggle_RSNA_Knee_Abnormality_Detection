@@ -114,7 +114,7 @@ def validate(
 
 def create_optimizer(model: nn.Module, config: dict) -> torch.optim.Optimizer:
     """Create optimizer."""
-    lr = config['training']['lr']
+    lr = float(config['training']['lr'])
     weight_decay = config['training']['weight_decay']
     
     # Separate backbone and classifier parameters for different LR
