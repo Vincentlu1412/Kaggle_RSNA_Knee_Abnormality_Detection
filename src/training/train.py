@@ -13,6 +13,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 import yaml
 import numpy as np
+import pandas as pd
 
 from src.models.model import create_model
 from src.data.dataset import create_dataloaders
@@ -223,8 +224,28 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     # Load data splits
     train_df = pd.read_csv(processed_root / f"train_fold{fold}.csv")
     val_df = pd.read_csv(processed_root / f"val_fold{fold}.csv")
-    
-    target_cols = [c for c in train_df.columns if c not in ['id', 'series_id', 'study_id']]
+
+    exclude_cols = [
+        'StudyInstanceUID',
+        'Report'
+    ]
+
+    target_cols = [
+        'ACL',
+        'MCL',
+        'Medial Meniscus',
+        'Lateral Meniscus',
+        'Medial OA',
+        'Lateral OA',
+        'PF OA',
+        'Effusion',
+        'Synovitis',
+        "Baker's",
+        'Contusion',
+        'Fracture'
+    ]
+
+    print("Target cols:", target_cols)
     
     # Create dataloaders
     train_loader, val_loader = create_dataloaders(
@@ -329,10 +350,11 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
 
 
 if __name__ == "__main__":
-    import pandas as pd
     
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
     
     # Train fold 0 by default
     train(config, fold=0)
+    
+    
