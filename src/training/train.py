@@ -8,7 +8,8 @@ from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+# from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 import yaml
@@ -47,7 +48,7 @@ def train_one_epoch(
         targets = batch['targets'].to(device, non_blocking=True)
         
         if use_amp:
-            with autocast():
+            with autocast(device_type='cuda'):
                 logits = model(images)
                 loss = loss_fn(logits, targets)
                 loss = loss / grad_accum_steps
@@ -274,7 +275,7 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     loss_fn = get_loss_fn(config, pos_weight)
     optimizer = create_optimizer(model, config)
     scheduler = create_scheduler(optimizer, config, config['training']['epochs'])
-    scaler = GradScaler() if config['training']['use_amp'] else None
+    scaler = GradScaler('cuda') if config['training']['use_amp'] else None
     
     # Resume if specified
     start_epoch = 0
