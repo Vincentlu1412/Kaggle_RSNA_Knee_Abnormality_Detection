@@ -17,7 +17,7 @@ paths:
   sample_submission: "sample_submission.csv"
   
   output_dir: "/kaggle/working/outputs"
-  model_dir: "outputs/working/outputs/models"
+  model_dir: "/kaggle/working/outputs/models"
   log_dir: "/kaggle/working/outputs/logs"
   submission_dir: "/kaggle/working/outputs/submissions"
 
