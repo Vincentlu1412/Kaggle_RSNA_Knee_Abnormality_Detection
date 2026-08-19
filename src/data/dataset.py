@@ -53,10 +53,10 @@ class KneeDataset(Dataset):
             img_path = self.data_root / row['image_path']
         else:
             # Construct from patient_id, series_id
-            patient_id = row.get('patient_id', row.get('id', ''))
-            series_id = row.get('series_id', '')
+            study_id = row['StudyInstanceUID']
+            img_dir = self.data_root / ("test_series" if self.is_test else "train_series") / study_id
             # Try to find the image
-            img_dir = self.data_root / ("test_images" if self.is_test else "train_images")
+            img_dir = self.data_root / ("test_images" if self.is_test else "train_series")
             img_path = img_dir / str(patient_id) / str(series_id)
             if img_path.is_dir():
                 # Get first image
