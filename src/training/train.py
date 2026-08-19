@@ -48,7 +48,7 @@ def train_one_epoch(
         targets = batch['targets'].to(device, non_blocking=True)
         
         if use_amp:
-            with autocast(device_type='cuda'):
+            with autocast(     device_type=device.type,     enabled=use_amp ):
                 logits = model(images)
                 loss = loss_fn(logits, targets)
                 loss = loss / grad_accum_steps
@@ -274,8 +274,8 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     # Loss, optimizer, scheduler
     loss_fn = get_loss_fn(config, pos_weight)
     optimizer = create_optimizer(model, config)
-    scheduler = duler(optimizer, config, config['training']['epochs'])
-    scaler = GradScaler('cuda') if config['training']['use_amp'] else None
+    scheduler = create_scheduler(optimizer, config, config['training']['epochs'])
+    scaler = GradScaler(     "cuda",     enabled=config['training']['use_amp'] ) if device.type == "cuda" else None
     
     # Resume if specified
     start_epoch = 0
