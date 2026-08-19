@@ -58,11 +58,11 @@ training:
   # Gradient accumulation
   grad_accum_steps: 1
   # Early stopping
-  early_stopping_patience: 7
+  early_stopping_patience: 15 # suggestion: 10 or 15
   early_stopping_metric: "val_auc"
   # Checkpointing
   save_top_k: 3
-  monitor: "val_auc"
+  monitor: "auc_mean"
   mode: "max"
 
 inference:
