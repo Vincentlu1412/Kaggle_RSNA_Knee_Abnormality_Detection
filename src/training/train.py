@@ -139,8 +139,8 @@ def create_optimizer(model: nn.Module, config: dict) -> torch.optim.Optimizer:
 
 def create_scheduler(optimizer: torch.optim.Optimizer, config: dict, num_epochs: int):
     """Create learning rate scheduler."""
-    warmup_epochs = config['training']['warmup_epochs']
-    min_lr = config['training']['min_lr']
+    warmup_epochs = int(config['training']['warmup_epochs'])
+    min_lr = float(config['training']['min_lr'])
     
     warmup_scheduler = LinearLR(
         optimizer,
@@ -274,7 +274,7 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     # Loss, optimizer, scheduler
     loss_fn = get_loss_fn(config, pos_weight)
     optimizer = create_optimizer(model, config)
-    scheduler = create_scheduler(optimizer, config, config['training']['epochs'])
+    scheduler = duler(optimizer, config, config['training']['epochs'])
     scaler = GradScaler('cuda') if config['training']['use_amp'] else None
     
     # Resume if specified
