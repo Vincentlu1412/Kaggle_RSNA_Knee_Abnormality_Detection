@@ -47,31 +47,25 @@ class KneeDataset(Dataset):
         return len(self.df)
     
     def _load_image(self, row: pd.Series) -> np.ndarray:
-        """Load image from DICOM or PNG."""
-        # Determine image path
-        if 'image_path' in row:
-            img_path = self.data_root / row['image_path']
+        study_id = row['StudyInstanceUID']
+    
+        img_root = self.data_root / (
+            "test_series" if self.is_test else "train_series"
+        )
+    
+        study_dir = img_root / str(study_id)
+    
+        # 找下面所有dcm
+        dcm_files = list(study_dir.rglob("*.dcm"))
+    
+        if len(dcm_files) == 0:
+            print("No DICOM:", study_dir)
+            img_path = study_dir
         else:
-            # Construct from patient_id, series_id
-            study_id = row['StudyInstanceUID']
-            img_dir = self.data_root / ("test_series" if self.is_test else "train_series") / study_id
-            # Try to find the image
-            img_dir = self.data_root / ("test_images" if self.is_test else "train_series")
-            img_path = img_dir / str(patient_id) / str(series_id)
-            if img_path.is_dir():
-                # Get first image
-                exts = ['.dcm', '.png', '.jpg']
-                for ext in exts:
-                    files = list(img_path.glob(f"*{ext}"))
-                    if files:
-                        img_path = files[0]
-                        break
-        
-        # Load image
-        if str(img_path).endswith('.dcm'):
-            return self._load_dicom(img_path)
-        else:
-            return self._load_regular(img_path)
+            # 先取第一张，保证跑通
+            img_path = dcm_files[0]
+    
+        return self._load_dicom(img_path)
     
     def _load_dicom(self, path: Path) -> np.ndarray:
         """Load and preprocess DICOM image."""
