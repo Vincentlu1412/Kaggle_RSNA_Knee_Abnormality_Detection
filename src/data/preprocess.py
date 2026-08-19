@@ -109,13 +109,18 @@ def create_splits(config):
     print(f"Target columns: {target_cols}")
     
     # Create stratification key (combination of all targets)
-    df['stratify_key'] = df[target_cols].astype(str).agg('_'.join, axis=1)
+    # df['stratify_key'] = df[target_cols].astype(str).agg('_'.join, axis=1)
+    # fill missing labels
+    df[target_cols] = df[target_cols].fillna(0)
+
+    # abnormal / normal stratification
+    df['abnormal'] = (df[target_cols].sum(axis=1) > 0).astype(int)
     
     # Split
     train_df, val_df = train_test_split(
         df, 
         test_size=config['data']['val_split'],
-        stratify=df['stratify_key'],
+        stratify=df['abnormal'],
         random_state=config['project']['seed']
     )
     
@@ -142,7 +147,12 @@ def create_kfold_splits(config, n_splits=5):
     df = pd.read_csv(train_csv)
     
     target_cols = [c for c in df.columns if c not in ['id', 'series_id', 'study_id']]
-    df['stratify_key'] = df[target_cols].astype(str).agg('_'.join, axis=1)
+    # df['stratify_key'] = df[target_cols].astype(str).agg('_'.join, axis=1)
+    # fill missing labels
+    df[target_cols] = df[target_cols].fillna(0)
+
+    # abnormal / normal stratification
+    df['abnormal'] = (df[target_cols].sum(axis=1) > 0).astype(int)
     
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=config['project']['seed'])
     
