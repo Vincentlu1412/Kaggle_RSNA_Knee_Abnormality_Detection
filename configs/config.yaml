@@ -22,7 +22,8 @@ paths:
   submission_dir: "/kaggle/working/outputs/submissions"
 
 data:
-  image_size: [224, 224]
+  # image_size: [224, 224] # picture detail could be much more
+  image_size: [384, 384]
   batch_size: 32
   num_workers: 4
   train_split: 0.8
@@ -36,14 +37,16 @@ data:
   std: [0.229, 0.224, 0.225]
 
 model:
-  name: "tf_efficientnet_b0_ns"  # timm model name
+  # name: "tf_efficientnet_b0_ns"  # timm model name,
+  name: "tf_efficientnet_b3_ns"    #  larger model size 
+  # name: "convnext_tiny"            #  better medical imaging
   pretrained: true
   num_classes: 12  # total 12 (multi-label)
   drop_rate: 0.2
   drop_path_rate: 0.1
 
 training:
-  epochs: 30
+  epochs: 50     # 30 or 50
   lr: 1e-4
   weight_decay: 1e-5
   optimizer: "adamw"
