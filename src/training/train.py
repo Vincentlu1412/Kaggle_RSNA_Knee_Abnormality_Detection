@@ -284,11 +284,16 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     
     # Resume if specified
     start_epoch = 0
+    
+    # Training monitor
+    monitor = config['training']['monitor']
+    mode = config['training']['mode']
+
     if mode == "max":
         best_metric = -float("inf")
     else:
         best_metric = float("inf")
-    
+        
     if resume_from:
         start_epoch, _ = load_checkpoint_for_resume(
             model, optimizer, scheduler, scaler, Path(resume_from)
@@ -302,8 +307,7 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     logger.info(f"Train batches: {len(train_loader)}, Val batches: {len(val_loader)}")
     
     patience_counter = 0
-    monitor = config['training']['monitor']
-    mode = config['training']['mode']
+    
     
     for epoch in range(start_epoch, config['training']['epochs']):
         epoch_start = time.time()
