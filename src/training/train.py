@@ -314,6 +314,12 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
         all_metrics = {**train_metrics, **val_metrics}
         all_metrics['lr'] = optimizer.param_groups[0]['lr']
         all_metrics['epoch'] = epoch
+
+        # Convert numpy types to native Python types for checkpoint saving
+        all_metrics = {
+            k: float(v) if isinstance(v, np.generic) else v
+            for k, v in all_metrics.items()
+        }
         
         # Log
         epoch_time = time.time() - epoch_start
