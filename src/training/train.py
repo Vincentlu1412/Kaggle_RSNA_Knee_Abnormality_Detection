@@ -284,7 +284,11 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     
     # Resume if specified
     start_epoch = 0
-    best_metric = 0.0
+    if mode == "max":
+        best_metric = -float("inf")
+    else:
+        best_metric = float("inf")
+    
     if resume_from:
         start_epoch, _ = load_checkpoint_for_resume(
             model, optimizer, scheduler, scaler, Path(resume_from)
@@ -334,6 +338,13 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
         
         # Save checkpoint
         current_metric = val_metrics.get(monitor, 0)
+
+        # print monitor
+        print("Epoch:", epoch)
+        print("monitor:", monitor)
+        print("current_metric:", current_metric)
+        print("best_metirc before:", best_metric)
+        
         is_best = False
         
         if mode == 'max' and current_metric > best_metric:
