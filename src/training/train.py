@@ -259,6 +259,11 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     
     # Create model
     model = create_model(config).to(device)
+
+    # mulit GPU
+    # if torch.cuda.device_count() > 1:
+    # print(f"Using {torch.cuda.device_count()} GPUs")
+    # model = torch.nn.DataParallel(model) 
     
     # Calculate pos_weight
     # train_targets = train_df[target_cols].values
