@@ -22,8 +22,8 @@ paths:
   submission_dir: "/kaggle/working/outputs/submissions"
 
 data:
-  # image_size: [224, 224] # picture detail could be much more
-  image_size: [384, 384]
+  image_size: [224, 224]  # picture detail could be much more
+  # image_size: [384, 384]
   batch_size: 32
   num_workers: 4
   train_split: 0.8
