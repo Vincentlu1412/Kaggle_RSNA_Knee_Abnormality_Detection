@@ -180,11 +180,14 @@ def save_checkpoint(
     
     checkpoint = {
         'epoch': epoch,
+        # single GPU : 'model_state_dict': model.state_dict(),
+        # multi GPU
         'model_state_dict': (
             model.module.state_dict()
             if isinstance(model, torch.nn.DataParallel)
             else model.state_dict()
         ),
+            
         'optimizer_state_dict': optimizer.state_dict(),
         'scheduler_state_dict': scheduler.state_dict() if scheduler else None,
         'scaler_state_dict': scaler.state_dict() if scaler else None,
@@ -205,8 +208,15 @@ def load_checkpoint_for_resume(
 ) -> tuple:
     """Load checkpoint for resuming training."""
     checkpoint = torch.load(path, map_location='cpu')
+
+    state_dict = checkpoint['model_state_dict']
+
+    # Support single GPU and DataParallel multi-GPU
+    if isinstance(model, torch.nn.DataParallel):
+        model.module.load_state_dict(state_dict)
+    else:
+        model.load_state_dict(state_dict)
     
-    model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     if scheduler and checkpoint['scheduler_state_dict']:
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
@@ -265,7 +275,7 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     # Create model
     model = create_model(config).to(device)
 
-    # mulit GPU
+    # mulit GPU (single GPU delete)
     if torch.cuda.device_count() > 1:
         print(f"Using {torch.cuda.device_count()} GPUs")
         model = torch.nn.DataParallel(model) 
@@ -369,7 +379,7 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
         
         save_checkpoint(
             model, optimizer, scheduler, scaler, epoch, all_metrics,
-            config, model_dir / "best_model.pth", is_best
+            config, model_dir / f"best_model_fold{fold}.pth", is_best
         )
         
         # Early stopping
@@ -389,7 +399,7 @@ if __name__ == "__main__":
     # # Train fold 0 by default
     # train(config, fold=0)
 
-    for fold in range(s):
+    for fold in range(5):
         print(f"\n========== Fold {fold} ==========\n")
 
         train(
