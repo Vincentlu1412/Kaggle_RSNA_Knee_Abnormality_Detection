@@ -12,7 +12,7 @@ class KneeClassifier(nn.Module):
     
     def __init__(
         self,
-        model_name: str = "tf_efficientnet_b0_ns",
+        model_name: str = "tf_efficientnet_b0.ns_jft_in1k",
         num_classes: int = 3,
         pretrained: bool = True,
         drop_rate: float = 0.2,
