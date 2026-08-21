@@ -140,7 +140,7 @@ def get_train_transforms(image_size: Tuple[int, int], aug_prob: float = 0.5) -> 
         A.VerticalFlip(p=0.2),
         A.RandomRotate90(p=0.3),
         A.Affine(
-            shift_limit=0.0625,
+            translate_percent=(-0.0625, 0.0625),
             scale=(0.9, 1.1),
             rotate=(-15, 15),
             p=0.5
