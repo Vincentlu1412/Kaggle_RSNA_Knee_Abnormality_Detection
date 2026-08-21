@@ -38,7 +38,7 @@ data:
 
 model:
   # name: "tf_efficientnet_b0_ns"  # timm model name,
-  name: "tf_efficientnet_b3_ns"    #  larger model size 
+  name: "tf_efficientnet_b3.ns_jft_in1k"    #  larger model size 
   # name: "convnext_tiny"            #  better medical imaging
   pretrained: true
   num_classes: 12  # total 12 (multi-label)
