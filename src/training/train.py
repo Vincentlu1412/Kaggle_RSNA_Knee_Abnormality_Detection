@@ -171,12 +171,20 @@ def save_checkpoint(
     metrics: Dict,
     config: dict,
     path: Path,
-    is_best: bool = False
+    is_best: bool = False,
 ):
     """Save model checkpoint."""
+    
+    if not is_best:
+        return
+    
     checkpoint = {
         'epoch': epoch,
-        'model_state_dict': model.state_dict(),
+        'model_state_dict': (
+            model.module.state_dict()
+            if isinstance(model, torch.nn.DataParallel)
+            else model.state_dict()
+        ),
         'optimizer_state_dict': optimizer.state_dict(),
         'scheduler_state_dict': scheduler.state_dict() if scheduler else None,
         'scaler_state_dict': scaler.state_dict() if scaler else None,
@@ -186,10 +194,7 @@ def save_checkpoint(
     
     torch.save(checkpoint, path)
     
-    if is_best:
-        best_path = path.parent / 'best_model.pth'
-        torch.save(checkpoint, best_path)
-
+    print(f"Saved best model to {path}")
 
 def load_checkpoint_for_resume(
     model: nn.Module,
@@ -261,9 +266,9 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
     model = create_model(config).to(device)
 
     # mulit GPU
-    # if torch.cuda.device_count() > 1:
-    # print(f"Using {torch.cuda.device_count()} GPUs")
-    # model = torch.nn.DataParallel(model) 
+    if torch.cuda.device_count() > 1:
+        print(f"Using {torch.cuda.device_count()} GPUs")
+        model = torch.nn.DataParallel(model) 
     
     # Calculate pos_weight
     # train_targets = train_df[target_cols].values
@@ -364,7 +369,7 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
         
         save_checkpoint(
             model, optimizer, scheduler, scaler, epoch, all_metrics,
-            config, model_dir / f"fold{fold}_epoch{epoch}.pth", is_best
+            config, model_dir / "best_model.pth", is_best
         )
         
         # Early stopping
@@ -381,7 +386,16 @@ if __name__ == "__main__":
     with open("configs/config.yaml") as f:
         config = yaml.safe_load(f)
     
-    # Train fold 0 by default
-    train(config, fold=0)
+    # # Train fold 0 by default
+    # train(config, fold=0)
+
+    for fold in range(s):
+        print(f"\n========== Fold {fold} ==========\n")
+
+        train(
+            config,
+            fold=fold
+        )
+        
     
     
