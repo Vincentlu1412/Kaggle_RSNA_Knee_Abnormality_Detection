@@ -139,14 +139,17 @@ def get_train_transforms(image_size: Tuple[int, int], aug_prob: float = 0.5) -> 
         A.HorizontalFlip(p=0.5),
         A.VerticalFlip(p=0.2),
         A.RandomRotate90(p=0.3),
-        A.ShiftScaleRotate(
+        A.Affine(
             shift_limit=0.0625,
-            scale_limit=0.1,
-            rotate_limit=15,
+            scale=(0.9, 1.1),
+            rotate=(-15, 15),
             p=0.5
         ),
         A.OneOf([
-            A.GaussNoise(var_limit=(10, 50)),
+            A.GaussNoise(     
+                std_range=(0.05, 0.2),     
+                p=0.3 
+            ),
             A.GaussianBlur(blur_limit=3),
             A.MotionBlur(blur_limit=3),
         ], p=0.3),
@@ -156,10 +159,9 @@ def get_train_transforms(image_size: Tuple[int, int], aug_prob: float = 0.5) -> 
             A.CLAHE(clip_limit=2),
         ], p=0.3),
         A.CoarseDropout(
-            max_holes=8,
-            max_height=16,
-            max_width=16,
-            min_holes=1,
+            num_holes_range=(1,8),
+            hole_height_range=(8,16),
+            hole_width_range=(8,16),
             p=0.2
         ),
         A.Resize(image_size[0], image_size[1]),
