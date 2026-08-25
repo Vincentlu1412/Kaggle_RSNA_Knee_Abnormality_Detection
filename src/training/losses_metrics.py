@@ -118,43 +118,77 @@ class MetricTracker:
         
         logits = torch.cat(self.all_logits, dim=0)
         targets = torch.cat(self.all_targets, dim=0)
+        
         probs = torch.sigmoid(logits).numpy()
         targets_np = targets.numpy()
         
         metrics = {}
-        
+
+        # =========================
         # Per-class AUC
+        # =========================
+        auc_values = []
+        
         for i, name in enumerate(self.target_names):
-            try:
-                auc = roc_auc_score(targets_np[:, i], probs[:, i])
-                metrics[f'auc_{name}'] = auc
-            except ValueError:
-                metrics[f'auc_{name}'] = 0.0
-        
-        # Mean AUC
-        auc_values = [v for k, v in metrics.items() if k.startswith('auc_')]
-        metrics['auc_mean'] = np.mean(auc_values) if auc_values else 0.0
-        
+            y_true = targets_np[:, i]
+            y_prob = probs[:, i]
+
+            # AUC requires both positive and negative samples
+            if len(np.unique(y_true)) < 2:
+                metrics[f'auc_{name}'] = np.nan
+            else:
+                auc = roc_auc_score(y_true, y_prob)
+                metrics[f'auc_{name}'] = float(auc)
+                auc_values.append(auc)
+
+        # Ignore undefined AUC classes
+        metrics['auc_mean'] = (
+            float(np.mean(auc_values))
+            if auc_values
+            else 0.0
+        )
+
+        # =========================
         # Per-class AP
+        # =========================
+        ap_values = []
+
         for i, name in enumerate(self.target_names):
-            try:
-                ap = average_precision_score(targets_np[:, i], probs[:, i])
-                metrics[f'ap_{name}'] = ap
-            except ValueError:
-                metrics[f'ap_{name}'] = 0.0
-        
-        ap_values = [v for k, v in metrics.items() if k.startswith('ap_')]
-        metrics['ap_mean'] = np.mean(ap_values) if ap_values else 0.0
-        
-        # Accuracy at threshold 0.5
+            y_true = targets_np[:, i]
+            y_prob = probs[:, i]
+
+            # AP is not meaningful when there are no positive samples
+            if np.sum(y_true) == 0:
+                metrics[f'ap_{name}'] = np.nan
+            else:
+                ap = average_precision_score(y_true, y_prob)
+                metrics[f'ap_{name}'] = float(ap)
+                ap_values.append(ap)
+
+        # Ignore undefined AP classes
+        metrics['ap_mean'] = (
+            float(np.mean(ap_values))
+            if ap_values
+            else 0.0
+        )
+
+        # =========================
+        # Accuracy
+        # =========================
         preds = (probs > 0.5).astype(int)
-        metrics['accuracy'] = (preds == targets_np).mean()
-        
+
+        metrics['accuracy'] = float(
+            (preds == targets_np).mean()
+        )
+
         # Per-class accuracy
         for i, name in enumerate(self.target_names):
-            metrics[f'acc_{name}'] = (preds[:, i] == targets_np[:, i]).mean()
-        
+            metrics[f'acc_{name}'] = float(
+                (preds[:, i] == targets_np[:, i]).mean()
+            )
+
         return metrics
+        
     
     def get_best_metric(self, metric_name: str = 'auc_mean') -> float:
         metrics = self.compute()
