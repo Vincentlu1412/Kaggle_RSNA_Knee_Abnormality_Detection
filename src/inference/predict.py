@@ -224,12 +224,13 @@ def generate_submission(
         probs = predict_single_model(model, test_loader, device)
     
     # Create submission
-    threshold = config['inference']['threshold']
-    preds = (probs > threshold).astype(int)
-    
     submission_df = sample_df.copy()
+
     for i, col in enumerate(target_cols):
-        submission_df[col] = preds[:, i]
+        submission_df[col] = probs[:, i]
+
+    submission_path = submission_dir / output_name
+    submission_df.to_csv(submission_path, index=False)
     
     # Also save probabilities
     prob_df = sample_df.copy()
