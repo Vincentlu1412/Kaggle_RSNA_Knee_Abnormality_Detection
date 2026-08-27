@@ -198,6 +198,7 @@ def save_checkpoint(
     torch.save(checkpoint, path)
     
     print(f"Saved best model to {path}")
+    print(f"Metric: {metrics['auc_mean']:.6f}")
 
 def load_checkpoint_for_resume(
     model: nn.Module,
@@ -378,6 +379,9 @@ def train(config: dict, fold: int = 0, resume_from: Optional[str] = None):
             patience_counter = 0
         else:
             patience_counter += 1
+
+        print("is_best:", is_best)
+        print("best_metric after:", best_metric)
         
         save_checkpoint(
             model, optimizer, scheduler, scaler, epoch, all_metrics,
