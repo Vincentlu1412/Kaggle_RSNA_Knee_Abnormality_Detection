@@ -405,7 +405,7 @@ if __name__ == "__main__":
     # # Train fold 0 by default
     # train(config, fold=0)
 
-    for fold in range(5):
+    for fold in range(1):
         print(f"\n========== Fold {fold} ==========\n")
 
         train(
