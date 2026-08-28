@@ -194,10 +194,10 @@ def generate_submission(
     # Determine model path
     if model_path is None:
         model_dir = Path(config['paths']['model_dir'])
-        model_path = model_dir / f"fold{fold}_best_model.pth"
+        model_path = model_dir / f"best_model_fold{fold}.pth"
         if not model_path.exists():
             # Try latest epoch
-            checkpoints = list(model_dir.glob(f"fold{fold}_epoch*.pth"))
+            checkpoints = list(model_dir.glob(f"best_model_fold{fold}.pth"))
             if checkpoints:
                 model_path = max(checkpoints, key=lambda x: x.stat().st_mtime)
     
@@ -268,7 +268,7 @@ def ensemble_submissions(
     """Ensemble multiple submission files."""
     submissions = [pd.read_csv(f) for f in submission_files]
     
-    target_cols = [c for c in submissions[0].columns if c != 'id']
+    target_cols = list(sample_df.columns[1:])
     
     if method == 'mean':
         # Average probabilities
