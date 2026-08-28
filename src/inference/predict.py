@@ -188,7 +188,7 @@ def generate_submission(
     # Load sample submission to get target columns
     sample_csv = data_root / config['paths']['sample_submission']
     sample_df = pd.read_csv(sample_csv)
-    target_cols = [c for c in sample_df.columns if c != 'id']
+    target_cols = [c for c in sample_df.columns if c != sample_df.columns[0]]
     logger.info(f"Target columns: {target_cols}")
     
     # Determine model path
